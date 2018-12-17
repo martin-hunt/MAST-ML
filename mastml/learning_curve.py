@@ -15,10 +15,14 @@ from sklearn.feature_selection import f_regression
 from mastml.legos import feature_selectors as fs
 
 # Ignore the harmless warning about the gelsd driver on mac.
-warnings.filterwarnings(action="ignore", module="scipy",
-                        message="^internal gelsd")
+warnings.filterwarnings(
+                        action="ignore",
+                        module="scipy",
+                        message="^internal gelsd"
+                        )
 
 log = logging.getLogger('mastml')
+
 
 def sample_learning_curve(X, y, estimator, cv, scoring, Xgroups=None):
     """

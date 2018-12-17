@@ -1095,7 +1095,6 @@ def plot_normalized_error(y_true, y_pred, savepath, model, X=None, avg_stats=Non
 
             max_length = 0
             for df in test_err_dfs:
-                print(df.shape[0])
                 if df.shape[0] > max_length:
                     max_length = df.shape[0]
             #print('Max length')

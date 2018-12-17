@@ -1,17 +1,20 @@
 """
-Module for generating an HTML file, called index.html, which contains an overview of the key data and plots from a
-MAST-ML run. Images of cross-validation parity plots, data histograms, data statistics, and links to the relevant files
-are all provided.
+Module for generating an HTML file, called index.html, which contains an
+overview of the key data and plots from a MAST-ML run. Images of
+cross-validation parity plots, data histograms, data statistics, and links to
+the relevant files are all provided.
 """
 
-import os
-from os.path import join, relpath # because it's used so much
-from time import gmtime, strftime
 import logging
+import os
+
+from os.path import join, relpath
+from time import gmtime, strftime
 from dominate import document
 from dominate.tags import *
 
 log = logging.getLogger('mastml')
+
 
 def make_html(outdir):
     """
@@ -19,7 +22,8 @@ def make_html(outdir):
 
     Args:
 
-        outdir: (str), user-specified output path which designates where all results of MAST-ML run are written
+        outdir: (str), user-specified output path which designates where all
+                results of MAST-ML run are written
 
     Returns:
 
@@ -28,21 +32,23 @@ def make_html(outdir):
     """
 
     with document(title='MASTML') as doc:
+
         # title and date
         h1('MAterial Science Tools - Machine Learning')
         h4(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
 
         # link to error log
-        #if errors_present:
+        # if errors_present:
         #    p('You have errors! check ', make_link(error_log))
 
         combos = list()
         link_sections = list()
-        #favorites = dict()
+        # favorites = dict()
 
         for root, dirs, files in os.walk(outdir):
             # find a folder that contains split_ folder.
-            # For example, results/StandardScaler/SelectKBest/LinearRegression/KFold
+            # For example,
+            # results/StandardScaler/SelectKBest/LinearRegression/KFold
             for d in dirs:
                 if d.startswith('split_0'):
                     combos.append(root)
@@ -50,13 +56,19 @@ def make_html(outdir):
             # extract links to important csvs and conf
             for f in files:
                 csv_whitelist = [
-                    'clusters.csv', 'generated_features.csv',
-                    'generated_features_no_constant_columns.csv', 'grouped.csv',
-                    'input_data_statistics.csv', 'normalized.csv', 'selected.csv', ]
+                                 'clusters.csv',
+                                 'generated_features.csv',
+                                 'generated_features_no_constant_columns.csv',
+                                 'grouped.csv',
+                                 'input_data_statistics.csv',
+                                 'normalized.csv',
+                                 'selected.csv',
+                                 ]
+
                 ext = os.path.splitext(f)[1]
                 if f in csv_whitelist or ext in ['.conf', '.log']:
                     link_sections.append(join(root, f))
-                    #simple_section(join(root, f), outdir)
+                    # simple_section(join(root, f), outdir)
 
         h1('Files')
         for path in link_sections:
@@ -79,7 +91,9 @@ def make_html(outdir):
             # find the best worst overlay
             for fname in os.listdir(combo):
                 if fname.endswith('.png'):
-                    h3(os.path.splitext(fname)[0]) # probably best_worst overlay
+
+                    # probably best_worst overlay
+                    h3(os.path.splitext(fname)[0])
                     make_image(relpath(join(combo, fname), outdir), fname)
                     br()
 
@@ -93,16 +107,20 @@ def make_html(outdir):
 
     log.info('wrote ' + join(outdir, 'index.html'))
 
+
 def show_combo(combo_dir, outdir):
     """
-    Method used to collect combinations of data analysis (e.g. parity plots of train and test data in a CV split) and
-    required file paths and display them in the output index.html file.
+    Method used to collect combinations of data analysis (e.g. parity plots of
+    train and test data in a CV split) and required file paths and display
+    them in the output index.html file.
 
     Args:
 
-        combo_dir: (str), path containing the relevant data to combine as output in the index.html file
+        combo_dir: (str), path containing the relevant data to combine as
+                   output in the index.html file
 
-        outdir: (str), user-specified output path which designates where all results of MAST-ML run are written
+        outdir: (str), user-specified output path which designates where all
+                results of MAST-ML run are written
 
     Returns:
 
@@ -126,25 +144,31 @@ def show_combo(combo_dir, outdir):
     h2(combo_dir.split(os.sep)[-1])
 
     # loop separately so we can control order
-    for train_image, test_image in zip(sorted(train_images), sorted(test_images)):
+    traintestzip = zip(sorted(train_images), sorted(test_images))
+    for train_image, test_image in traintestzip:
         make_image(relpath(train_image, outdir), 'train')
         make_image(relpath(test_image, outdir), 'test')
-        br();br()
+        br()
+        br()
 
     h3('links')
     for l in links:
         make_link(relpath(l, outdir))
         span('  ')
 
+
 def simple_section(filepath, outdir):
     """
-    Method used to create a section name for a particular analysis combination that will be displayed in the index.html file.
+    Method used to create a section name for a particular analysis combination
+    that will be displayed in the index.html file.
 
     Args:
 
-        filepath: (str), path containing the relevant data to combine as output in the index.html file
+        filepath: (str), path containing the relevant data to combine as
+                  output in the index.html file
 
-        outdir: (str), user-specified output path which designates where all results of MAST-ML run are written
+        outdir: (str), user-specified output path which designates where all
+                results of MAST-ML run are written
 
     Returns:
 
@@ -160,10 +184,12 @@ def simple_section(filepath, outdir):
     make_link(relpath(filepath, outdir))
     br()
 
+
 def make_link(href):
     """
-    Method used to generate a link to a particular file created from a MAST-ML run. The link will be displayed next to the
-    appropriate data or image in the index.html file
+    Method used to generate a link to a particular file created from a MAST-ML
+    run. The link will be displayed next to the appropriate data or image in
+    the index.html file
 
     Args:
 
@@ -178,10 +204,11 @@ def make_link(href):
     " Make a link where text is filename of href "
     return a(os.path.basename(href), href=href, style='padding-left: 15px;')
 
+
 def make_image(src, title=None):
     """
-    Method used to generate and show an image of a fixed width. The image will be displayed in the appropriate
-    section of the index.html file
+    Method used to generate and show an image of a fixed width. The image will
+    be displayed in the appropriate section of the index.html file
 
     Args:
 
@@ -198,8 +225,9 @@ def make_image(src, title=None):
     d = div(style='display:inline-block;', _class='photo')
     if title:
         d += h4(title)
-        #d += p(a(title))
+        # d += p(a(title))
     d += img(src=src, height='200')
+
 
 def is_train_image(path):
     """
@@ -211,11 +239,13 @@ def is_train_image(path):
 
     Returns:
 
-        (bool), True if path is an image (.png) and is for training data (has 'train' in path)
+        (bool), True if path is an image (.png) and is for training data (has
+        'train' in path)
 
     """
     basename = os.path.basename(path)
     return os.path.splitext(basename)[1] == '.png' and 'train' in basename
+
 
 def is_test_image(path):
     """
@@ -227,7 +257,8 @@ def is_test_image(path):
 
     Returns:
 
-        (bool), True if path is an image (.png) and is for testing data (has 'test' in path)
+        (bool), True if path is an image (.png) and is for testing data (has
+        'test' in path)
 
     """
     basename = os.path.basename(path)
